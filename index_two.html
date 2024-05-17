@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="https://necolas.github.io/normalize.css/8.0.1/normalize.css" />
+    <title>Slider</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        
+        .slider {
+            position: relative;
+            width: 600px;
+            overflow: hidden;
+            margin: 20px auto;
+        }
+        
+        .slider-wrapper {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        
+        .slide {
+            min-width: 600px;
+            transition: opacity 0.5s;
+        }
+        
+        .controls {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+        }
+        
+        .control {
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+        
+        .dots {
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin: 5px;
+            background: gray;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .dot.active {
+            background: black;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="slider">
+        <div class="slider-wrapper">
+            <div class="slide"><img src="css_js_img/slider/600x400 1.png" alt="Image 1"></div>
+            <div class="slide"><img src="css_js_img/slider/600x400 2.png" alt="Image 2"></div>
+            <div class="slide"><img src="css_js_img/slider/600x400 3.png" alt="Image 3"></div>
+            <div class="slide"><img src="css_js_img/slider/600x400 4.png" alt="Image 4"></div>
+            <div class="slide"><img src="css_js_img/slider/600x400 5.png" alt="Image 5"></div>
+            <div class="slide"><img src="css_js_img/slider/600x400 6.png" alt="Image 6"></div>
+            <div class="slide"><img src="css_js_img/slider/600x400 7.png" alt="Image 7"></div>
+            <div class="slide"><img src="css_js_img/slider/600x400 8.png" alt="Image 8"></div>
+            <div class="slide"><img src="css_js_img/slider/600x400 9.png" alt="Image 9"></div>
+            <div class="slide"><img src="css_js_img/slider/600x400 10.png" alt="Image 10"></div>
+        </div>
+        <div class="controls">
+            <button class="control prev">❮</button>
+            <button class="control next">❯</button>
+        </div>
+    </div>
+    <div class="dots"></div>
+    <noscript>Включи JS</noscript>
+
+    <script>
+        const sliderWrapper = document.querySelector('.slider-wrapper');
+        const slides = document.querySelectorAll('.slide');
+        const prevButton = document.querySelector('.control.prev');
+        const nextButton = document.querySelector('.control.next');
+        const dotsContainer = document.querySelector('.dots');
+        let currentIndex = 0;
+        let isAnimating = false;
+        const slideWidth = slides[0].offsetWidth;
+
+        slides.forEach((slide, index) => {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if (index === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => {
+                if (!isAnimating && index !== currentIndex) {
+                    goToSlide(index);
+                }
+            });
+            dotsContainer.appendChild(dot);
+        });
+
+        function updateDots() {
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentIndex);
+            });
+        }
+
+        function goToSlide(index) {
+            if (index >= slides.length) {
+                index = 0;
+            } else if (index < 0) {
+                index = slides.length - 1;
+            }
+            currentIndex = index;
+            isAnimating = true;
+            const interval = setInterval(() => {
+                const currentPosition = -currentIndex * slideWidth;
+                const targetPosition = -index * slideWidth;
+                const step = (targetPosition - currentPosition) / 10; // 10 steps for smooth transition
+                sliderWrapper.style.transform = `translateX(${currentPosition + step}px)`;
+                if (Math.abs(currentPosition + step - targetPosition) < 1) {
+                    sliderWrapper.style.transform = `translateX(${targetPosition}px)`;
+                    clearInterval(interval);
+                    isAnimating = false;
+                    updateDots();
+                }
+            }, 50);
+        }
+
+        function nextSlide() {
+            if (!isAnimating) {
+                goToSlide(currentIndex + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (!isAnimating) {
+                goToSlide(currentIndex - 1);
+            }
+        }
+
+        nextButton.addEventListener('click', nextSlide);
+        prevButton.addEventListener('click', prevSlide);
+
+        window.addEventListener('resize', () => {
+            sliderWrapper.style.transition = 'none';
+            sliderWrapper.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+            setTimeout(() => {
+                sliderWrapper.style.transition = 'transform 0.5s ease';
+            }, 0);
+        });
+    </script>
+
+</body>
+
+</html>
